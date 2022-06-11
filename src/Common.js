@@ -1,6 +1,5 @@
 const { Oblivious } = require('@nthparty/oblivious')
 const _sodium = require('libsodium-wrappers-sumo')
-let sodium = null
 
 
 class Mask {
@@ -42,6 +41,15 @@ class Common {
         return this.sodium.crypto_kx_keypair()
     }
 
+    generateNonce () {
+        const nonce = this.sodium.randombytes_buf(this.sodium.crypto_secretbox_NONCEBYTES)
+        return nonce
+    }
+
+    hash (value) {
+
+    }
+
     static hash (value) {
         const digest = Oblivious.Point.hash(value)
         return digest
@@ -53,10 +61,26 @@ class Common {
     }
 
     static base64Decode (str) {
-        const buffer = new Buffer.from(str, 'base64')
-        return new ArrayBuffer(buffer)
+        const bytes = new Buffer.from(str, 'base64')
+        const arr = new Uint8Array(bytes)
+        return bytes
     }
+}
+
+// sodium.crypto_generichash_batch = sodium_crypto_generichash_batch
+function sodium_crypto_generichash_batch (arr) {
+    const key = Buffer.alloc(this.crypto_generichash_KEYBYTES)
+    const state = this.crypto_generichash_init(
+        key,
+        this.crypto_generichash_BYTES
+    )
+    arr.forEach(item => {
+        this.crypto_generichash_update(state, item)
+    })
+    const combinedHash = this.crypto_generichash_final(state, this.crypto_generichash_BYTES)
+    return combinedHash
 }
 
 exports.Common = Common
 exports.Mask = Mask
+exports.sodium_crypto_generichash_batch = sodium_crypto_generichash_batch
