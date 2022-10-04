@@ -5,6 +5,11 @@ export type SessionKeys = {
   sharedTx: Uint8Array;
 };
 
+export type OprfChallenge = {
+  oprfChallenge: Uint8Array;
+  randomScalar: Uint8Array;
+};
+
 export let publicKey: Uint8Array | undefined = undefined;
 export let privateKey: Uint8Array | undefined = undefined;
 export let keyType: string | undefined = undefined;
@@ -155,7 +160,7 @@ const _createArgon2RandomizedPaswordHash = (
  * @returns Object containing the public key and private key
  */
 export const createKeyPair = async () => {
-  const keyPair = await common.generateKeyPair();
+  const keyPair = common.generateKeyPair();
   publicKey = keyPair.publicKey;
   privateKey = keyPair.privateKey;
   keyType = keyPair.keyType;
@@ -166,7 +171,7 @@ export const createKeyPair = async () => {
  * @param {string} password
  * @returns
  */
-export const createOprfChallenge = (password: string) => {
+export const createOprfChallenge = (password: string): OprfChallenge => {
   const mappedPassword = _getCurveMappedPassword(password);
   const randomScalar = _createRandomScalar();
   const randomPointOnCurve =
@@ -227,20 +232,12 @@ export const createOprfRegistrationEnvelope = (
   serverPublicKey: Uint8Array,
   oprfPublicKey: Uint8Array
 ): OprfRegistrationEnvelope => {
-  // const randomScalar = this._createRandomScalar()
   const randomizedPassword = _createRandomizedPassword1(
     password,
     serverChallengeResponse,
     oprfPublicKey,
     randomScalar
   );
-  /*
-        const randomizedPassword = this._createRandomizedPassword1(
-            password,
-            randomScalar,
-            oprfPublicKey
-        )
-        /* */
   const argon2DerivedKey =
     _createArgon2RandomizedPaswordHash(randomizedPassword);
   const nonce = common.generateNonce();
@@ -255,9 +252,8 @@ export const createOprfRegistrationEnvelope = (
     nonce,
     argon2DerivedKey
   );
-  const oprfRegistrationEnvelope = {
+  return {
     cipherText: cipherText,
     nonce: nonce,
   };
-  return oprfRegistrationEnvelope;
 };

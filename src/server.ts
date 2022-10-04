@@ -42,7 +42,7 @@ export type AsymmetricKey = {
  * @returns Object containing the public key and private key
  */
 export const createKeyPair = async () => {
-  const keyPair = await common.generateKeyPair();
+  const keyPair = common.generateKeyPair();
   publicKey = keyPair.publicKey;
   privateKey = keyPair.privateKey;
   keyType = keyPair.keyType;
@@ -130,7 +130,7 @@ export const createLoginChallengeResponse = (
   clientOprfChallenge: Uint8Array
 ): LoginChallengeResponse => {
   if (!registeredClientsDatabase[username]) {
-    throw Error(`User '${username}' is not registered`);
+    throw Error(`Username not registered`);
   }
   const userData = registeredClientsDatabase[username];
   const oprfChallengeResponse = _createOprfChallengeResponse(
@@ -147,7 +147,7 @@ export const createLoginChallengeResponse = (
 
 export const didLoginSucceed = (username: string, userSession: SessionKeys) => {
   if (!registeredClientsDatabase[username]) {
-    throw Error("Username not registered yet");
+    return false;
   }
   const userData = registeredClientsDatabase[username];
   const serverSession = common.sodium.crypto_kx_server_session_keys(
@@ -156,6 +156,9 @@ export const didLoginSucceed = (username: string, userSession: SessionKeys) => {
     userData.clientPublicKey
   );
   const isAuthorized =
-    JSON.stringify(userSession) === JSON.stringify(serverSession);
+    common.sodium.to_base64(userSession.sharedRx) ==
+      common.sodium.to_base64(serverSession.sharedTx) &&
+    common.sodium.to_base64(userSession.sharedTx) ==
+      common.sodium.to_base64(serverSession.sharedRx);
   return isAuthorized;
 };
