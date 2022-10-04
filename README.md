@@ -1,4 +1,4 @@
-# OPAQUE-KE Tests in Javascript and Libsodium
+# OPAQUE-KE Tests in Typescript and Libsodium
 
 OPAQUE is a way for users to type their username and password to log into a website, but then log in without sending their password across the Internet.
 
