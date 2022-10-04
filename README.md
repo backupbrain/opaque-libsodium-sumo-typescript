@@ -29,6 +29,7 @@ The descrypted packet contains the other half of the session keys used to create
 Install modules
 
 ```console
+$ yarn install -g jest ts-node
 $ yarn
 ```
 
@@ -38,11 +39,20 @@ $ yarn
 $ yarn run demo
 ```
 
-This runs the `src/test-registration.ts` script, which runs a series of registration and login tests, including:
+This runs the `src/example-implementation.ts` script, which runs a series of registration and login tests, including:
 
 * Register (OPAQUE)
 * Successful login (key exchange)
 * Unauthorized login attempt
+
+
+## Running Tests
+
+```console
+$ yarn test
+```
+
+This runs the `tests/opaque.test.ts` script, which runs a series of registration and login tests.
 
 # More information
 

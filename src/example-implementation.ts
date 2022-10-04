@@ -15,6 +15,7 @@ const password = "password";
  * Initialize the client and server
  */
 const initializeEnvironment = () => {
+  console.log("initializing environment");
   client.createKeyPair();
   server.createKeyPair();
 };
@@ -34,8 +35,6 @@ const registerClientWithServer = (username: string, password: string) => {
   const randomScalar = clientOprfChallengeData.randomScalar;
   console.log("1. Client generated OPRF challenge for Server");
 
-  console.log(`challenge: ${sodium.to_base64(clientOprfChallenge)}`);
-
   const serverChallengeResponse = server.createRegistrationResponse(
     username,
     clientOprfChallenge
@@ -50,9 +49,6 @@ const registerClientWithServer = (username: string, password: string) => {
   );
   console.log("3. Client created OPRF Registration Envelope");
 
-  // console.log(`cipherText: ${sodium.to_base64(oprfRegistrationEnvelope.cipherText)}`)
-  // console.log(`nonce: ${sodium.to_base64(oprfRegistrationEnvelope.nonce)}`)
-  // console.log(`client.publicKey: ${sodium.to_base64(client.publicKey)}`)
   server.storeClientOprfRegistrationEnvelope(
     username,
     oprfRegistrationEnvelope,
@@ -77,7 +73,6 @@ const loginClientToServer = (username: string, password: string) => {
   const randomScalar = clientOprfChallengeData.randomScalar;
   console.log("1. Client generated OPRF challenge for Server");
 
-  console.log(`challenge: ${sodium.to_base64(clientOprfChallenge)}`);
   let serverChallengeResponse: server.LoginChallengeResponse | undefined =
     undefined;
   try {
@@ -105,7 +100,6 @@ const loginClientToServer = (username: string, password: string) => {
       randomScalar,
       serverChallengeResponse.oprfChallengeResponse
     );
-    console.log(clienSessionKeys);
     console.log(`sharedRx: ${sodium.to_base64(clienSessionKeys.sharedRx)}`);
     console.log(`sharedTx: ${sodium.to_base64(clienSessionKeys.sharedTx)}`);
   } catch (error) {
@@ -117,9 +111,9 @@ const loginClientToServer = (username: string, password: string) => {
     return;
   }
   console.log("3. Client creates shared session keys");
-
   let isAuthorized = false;
   try {
+    console.log("aonsteuhsanthus");
     isAuthorized = server.didLoginSucceed(username, clienSessionKeys);
   } catch (error) {
     console.log("3. Server failed to replicate session keys!");

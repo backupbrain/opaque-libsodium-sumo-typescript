@@ -25,8 +25,9 @@ function sodium_crypto_generichash_batch(arr: Uint8Array[]): Uint8Array {
   return combinedHash;
 }
 
-export const generateKeyPair = async () => {
-  return sodium.crypto_kx_keypair();
+export const generateKeyPair = () => {
+  const keyPair = sodium.crypto_kx_keypair();
+  return keyPair;
 };
 
 export const generateNonce = () => {
