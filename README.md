@@ -1,4 +1,4 @@
-# OPAQUE-KE Tests in Javascript and Libsodium
+# OPAQUE-KE Tests in Typescript and Libsodium
 
 OPAQUE is a way for users to type their username and password to log into a website, but then log in without sending their password across the Internet.
 
@@ -38,11 +38,16 @@ $ yarn
 $ yarn run demo
 ```
 
-This runs the `src/test-registration-oo.js` script, which runs a series of registration and login tests, including:
+This runs the `src/test-registration.ts` script, which runs a series of registration and login tests, including:
 
 * Register (OPAQUE)
 * Successful login (key exchange)
 * Unauthorized login attempt
 
+# More information
 
+[OPAQUE: An Asymmetric PAKE Protocol Secure Against Pre-Computation Attacks](https://eprint.iacr.org/2018/163.pdf)
 
+[The OPAQUE Asymmetric PAKE Protocol (draft-irtf-cfrg-opaque-09)](https://datatracker.ietf.org/doc/draft-irtf-cfrg-opaque/10/)
+
+[WASM / Typescript Impelementation](https://www.npmjs.com/package/opaque-wasm)
