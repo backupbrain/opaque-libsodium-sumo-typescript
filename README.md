@@ -44,5 +44,10 @@ This runs the `src/test-registration.ts` script, which runs a series of registra
 * Successful login (key exchange)
 * Unauthorized login attempt
 
+# More information
 
+[OPAQUE: An Asymmetric PAKE Protocol Secure Against Pre-Computation Attacks](https://eprint.iacr.org/2018/163.pdf)
 
+[The OPAQUE Asymmetric PAKE Protocol (draft-irtf-cfrg-opaque-09)](https://datatracker.ietf.org/doc/draft-irtf-cfrg-opaque/10/)
+
+[WASM / Typescript Impelementation](https://www.npmjs.com/package/opaque-wasm)
