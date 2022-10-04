@@ -29,6 +29,7 @@ The descrypted packet contains the other half of the session keys used to create
 Install modules
 
 ```console
+$ yarn install -g jest ts-node
 $ yarn
 ```
 
