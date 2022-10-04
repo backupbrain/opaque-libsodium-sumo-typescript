@@ -38,7 +38,7 @@ $ yarn
 $ yarn run demo
 ```
 
-This runs the `src/test-registration-oo.js` script, which runs a series of registration and login tests, including:
+This runs the `src/test-registration.ts` script, which runs a series of registration and login tests, including:
 
 * Register (OPAQUE)
 * Successful login (key exchange)
