@@ -1,4 +1,3 @@
-import { SessionKeys } from "./client";
 import * as common from "./common";
 
 export let publicKey: Uint8Array | undefined = undefined;
@@ -145,16 +144,26 @@ export const createLoginChallengeResponse = (
   return challengeResponseData;
 };
 
-export const didLoginSucceed = (username: string, userSession: SessionKeys) => {
+export const createSession = (
+  clientPublicKey: Uint8Array
+): common.SessionKeys => {
+  const serverSessionKeys = common.sodium.crypto_kx_server_session_keys(
+    publicKey,
+    privateKey,
+    clientPublicKey
+  );
+  return serverSessionKeys;
+};
+
+export const didLoginSucceed = (
+  username: string,
+  userSession: common.SessionKeys
+) => {
   if (!registeredClientsDatabase[username]) {
     return false;
   }
   const userData = registeredClientsDatabase[username];
-  const serverSession = common.sodium.crypto_kx_server_session_keys(
-    publicKey,
-    privateKey,
-    userData.clientPublicKey
-  );
+  const serverSession = createSession(userData.clientPublicKey!);
   const isAuthorized =
     common.sodium.to_base64(userSession.sharedRx) ==
       common.sodium.to_base64(serverSession.sharedTx) &&

@@ -1,6 +1,11 @@
 import _sodium from "libsodium-wrappers-sumo";
 export let sodium: any = null;
 
+export type SessionKeys = {
+  sharedRx: Uint8Array;
+  sharedTx: Uint8Array;
+};
+
 export const initializeSodium = async (): Promise<void> => {
   await _sodium.ready;
   sodium = _sodium;
@@ -44,4 +49,45 @@ export const base64Decode = (str: string): Uint8Array => {
   const bytes = Buffer.from(str, "base64");
   const arr = new Uint8Array(bytes);
   return arr;
+};
+
+const arr2String = (arr: Uint8Array): string => {
+  const buffer = Buffer.from(arr);
+  const str = buffer.toString("utf-8");
+  return str;
+};
+
+export const encryptWithSharedKey = (
+  message: string,
+  sharedKey: Uint8Array
+): { encryptedMessage: Uint8Array; nonce: Uint8Array } => {
+  const nonce = sodium.randombytes_buf(
+    sodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
+  );
+  const additionData = "";
+  const encryptedMessage = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(
+    message,
+    additionData,
+    null,
+    nonce,
+    sharedKey
+  );
+  return { encryptedMessage, nonce };
+};
+
+export const decryptWithSharedKey = (
+  encryptedMessage: Uint8Array,
+  nonce: Uint8Array,
+  sharedKey: Uint8Array
+): string => {
+  const additionalData = "";
+  const decryptedClientMessage =
+    sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
+      null,
+      encryptedMessage,
+      additionalData,
+      nonce,
+      sharedKey
+    );
+  return arr2String(decryptedClientMessage);
 };

@@ -1,10 +1,5 @@
 import * as common from "./common";
 
-export type SessionKeys = {
-  sharedRx: Uint8Array;
-  sharedTx: Uint8Array;
-};
-
 export type OprfChallenge = {
   oprfChallenge: Uint8Array;
   randomScalar: Uint8Array;
@@ -82,7 +77,7 @@ const _openEnvelope = (
   cipherText: Uint8Array,
   nonce: Uint8Array,
   argon2DerivedKey: Uint8Array
-): SessionKeys => {
+): common.SessionKeys => {
   // Note: expect that this will throw an error if it can't be decrypted
   const messageBytes = common.sodium.crypto_secretbox_open_easy(
     cipherText,
@@ -183,14 +178,14 @@ export const createOprfChallenge = (password: string): OprfChallenge => {
   return { oprfChallenge, randomScalar };
 };
 
-export const createUserSession = (
+export const createSession = (
   password: string,
   cipherText: Uint8Array,
   nonce: Uint8Array,
   oprfPublicKey: Uint8Array,
   randomScalar: Uint8Array,
   serverChallengeResponse: Uint8Array
-): SessionKeys => {
+): common.SessionKeys => {
   const randomizedPassword = _createRandomizedPassword1(
     password,
     serverChallengeResponse,
@@ -199,7 +194,7 @@ export const createUserSession = (
   );
   const argon2DerivedKey =
     _createArgon2RandomizedPaswordHash(randomizedPassword);
-  let clientSessionKeys: SessionKeys | undefined = undefined;
+  let clientSessionKeys: common.SessionKeys | undefined = undefined;
   try {
     clientSessionKeys = _openEnvelope(cipherText, nonce, argon2DerivedKey);
   } catch (error) {

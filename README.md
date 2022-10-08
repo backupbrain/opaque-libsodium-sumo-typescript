@@ -18,7 +18,7 @@ The server generates information required to set up it's half of a key exchange 
 
 ### Login
 
-When you login, the server sends the same public key to the client.  The client uses this and the password to generate the encryption private key.
+When the client logs in, the server sends the same public key to the client. The client uses this and the password to generate the encryption private key.
 
 The server sends the encrypted data from the registration and the user decrypts it using the derived private key.
 
@@ -29,27 +29,26 @@ The descrypted packet contains the other half of the session keys used to create
 Install modules
 
 ```console
-$ yarn install -g jest ts-node
-$ yarn
+$ npm install -g jest ts-node
+$ npm install
 ```
 
-## Running 
+## Running
 
 ```console
-$ yarn run demo
+$ npm run demo
 ```
 
-This runs the `src/example-implementation.ts` script, which runs a series of registration and login tests, including:
+This runs the `src/demo.ts` script, which runs a series of registration and login tests, including:
 
-* Register (OPAQUE)
-* Successful login (key exchange)
-* Unauthorized login attempt
-
+- Register (OPAQUE)
+- Successful login (key exchange)
+- Unauthorized login attempt
 
 ## Running Tests
 
 ```console
-$ yarn test
+$ npm test
 ```
 
 This runs the `tests/opaque.test.ts` script, which runs a series of registration and login tests.

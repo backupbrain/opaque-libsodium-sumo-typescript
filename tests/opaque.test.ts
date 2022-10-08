@@ -24,7 +24,7 @@ const login = (username: string, password: string) => {
   expect(serverChallengeResponse.oprfPublicKey.length).toBe(32);
   expect(serverChallengeResponse.oprfChallengeResponse.length).toBe(32);
   // 2. Server generated OPRF Response for Client
-  const clienSessionKeys = client.createUserSession(
+  const clientSessionKeys = client.createSession(
     password,
     serverChallengeResponse.envelope.cipherText,
     serverChallengeResponse.envelope.nonce,
@@ -32,14 +32,15 @@ const login = (username: string, password: string) => {
     randomScalar,
     serverChallengeResponse.oprfChallengeResponse
   );
+  const serverSessionKeys = server.createSession(client.publicKey!);
   // 3. Client creates shared session keys
-  const isAuthorized = server.didLoginSucceed(username, clienSessionKeys);
+  const isAuthorized = server.didLoginSucceed(username, clientSessionKeys);
   // 4. Server creates matching session keys if login was successful
-  return isAuthorized;
+  return { isAuthorized, serverSessionKeys, clientSessionKeys };
 };
 
 beforeAll(async () => {
-  sodium = common.initializeSodium();
+  sodium = await common.initializeSodium();
   client.createKeyPair();
   server.createKeyPair();
 });
@@ -90,9 +91,35 @@ test("Registration", () => {
   // Registration succeeded
 });
 
-test("Successful Login", () => {
-  const isAuthorized = login(username, password);
+test("Successful Login and encrypted communication", () => {
+  const { isAuthorized, serverSessionKeys, clientSessionKeys } = login(
+    username,
+    password
+  );
   expect(isAuthorized).toBe(true);
+  // try to encrypt and decrypt a message with the session keys
+  const clientMessage = "Client says hello.";
+  const encryptedClientData = common.encryptWithSharedKey(
+    clientMessage,
+    clientSessionKeys.sharedTx
+  );
+  const decryptedClientMessage = common.decryptWithSharedKey(
+    encryptedClientData.encryptedMessage,
+    encryptedClientData.nonce,
+    serverSessionKeys.sharedRx
+  );
+  expect(decryptedClientMessage).toBe(clientMessage);
+  const serverMessage = "Server says hello.";
+  const encryptedServerData = common.encryptWithSharedKey(
+    serverMessage,
+    serverSessionKeys.sharedTx
+  );
+  const decryptedServerMessage = common.decryptWithSharedKey(
+    encryptedServerData.encryptedMessage,
+    encryptedServerData.nonce,
+    clientSessionKeys.sharedRx
+  );
+  expect(decryptedServerMessage).toBe(serverMessage);
 });
 
 test("Bad Password", () => {

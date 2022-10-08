@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "demo": "ts-node src/example-implementation.ts",
+    "demo": "ts-node src/demo.ts",
     "test": "jest"
   },
   "author": "backupbrain@gmail.com",

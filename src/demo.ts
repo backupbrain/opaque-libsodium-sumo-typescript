@@ -90,9 +90,10 @@ const loginClientToServer = (username: string, password: string) => {
   }
   console.log("2. Server generated OPRF Response for Client");
 
-  let clienSessionKeys: client.SessionKeys | undefined = undefined;
+  let clientSessionKeys: common.SessionKeys | undefined = undefined;
+  let serverSessionKeys: common.SessionKeys | undefined = undefined;
   try {
-    clienSessionKeys = client.createUserSession(
+    clientSessionKeys = client.createSession(
       password,
       serverChallengeResponse.envelope.cipherText,
       serverChallengeResponse.envelope.nonce,
@@ -100,8 +101,19 @@ const loginClientToServer = (username: string, password: string) => {
       randomScalar,
       serverChallengeResponse.oprfChallengeResponse
     );
-    console.log(`sharedRx: ${sodium.to_base64(clienSessionKeys.sharedRx)}`);
-    console.log(`sharedTx: ${sodium.to_base64(clienSessionKeys.sharedTx)}`);
+    serverSessionKeys = server.createSession(client.publicKey!);
+    console.log(
+      `   Client sharedRx: ${sodium.to_base64(clientSessionKeys.sharedRx)}`
+    );
+    console.log(
+      `   Client sharedTx: ${sodium.to_base64(clientSessionKeys.sharedTx)}`
+    );
+    console.log(
+      `   Server sharedRx: ${sodium.to_base64(serverSessionKeys.sharedRx)}`
+    );
+    console.log(
+      `   Server sharedTx: ${sodium.to_base64(serverSessionKeys.sharedTx)}`
+    );
   } catch (error) {
     console.log("3. Client failed to create shared session keys!");
     console.log("---------------------------------------------");
@@ -113,8 +125,7 @@ const loginClientToServer = (username: string, password: string) => {
   console.log("3. Client creates shared session keys");
   let isAuthorized = false;
   try {
-    console.log("aonsteuhsanthus");
-    isAuthorized = server.didLoginSucceed(username, clienSessionKeys);
+    isAuthorized = server.didLoginSucceed(username, clientSessionKeys);
   } catch (error) {
     console.log("3. Server failed to replicate session keys!");
     console.log("---------------------------------------------");
@@ -136,6 +147,31 @@ const loginClientToServer = (username: string, password: string) => {
   console.log("   Login succeeded! isAuthorized = true");
   console.log("=============================================");
   console.log("");
+
+  // Sending message from client to server using a shared key and sodium
+  const clientMessage = "Client says hello.";
+  const encryptedClientData = common.encryptWithSharedKey(
+    clientMessage,
+    clientSessionKeys.sharedTx
+  );
+  const decryptedClientMessage = common.decryptWithSharedKey(
+    encryptedClientData.encryptedMessage,
+    encryptedClientData.nonce,
+    serverSessionKeys.sharedRx
+  );
+  console.log(`    Client sent: "${decryptedClientMessage}"`);
+  const serverMessage = "Server says hello.";
+  const encryptedServerData = common.encryptWithSharedKey(
+    serverMessage,
+    serverSessionKeys.sharedTx
+  );
+  const decryptedServerMessage = common.decryptWithSharedKey(
+    encryptedServerData.encryptedMessage,
+    encryptedServerData.nonce,
+    clientSessionKeys.sharedRx
+  );
+  console.log(`    Server sent: "${decryptedServerMessage}"`);
+  console.log("---------------------------------------------");
 };
 
 const main = async () => {
